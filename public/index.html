@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Socket.IO chat</title>
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        #form {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 0.25rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            height: 3rem;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+        }
+
+        #input {
+            border: none;
+            padding: 0 1rem;
+            flex-grow: 1;
+            border-radius: 2rem;
+            margin: 0.25rem;
+        }
+
+        #input:focus {
+            outline: none;
+        }
+
+        #form>button {
+            background: #333;
+            border: none;
+            padding: 0 1rem;
+            margin: 0.25rem;
+            border-radius: 3px;
+            outline: none;
+            color: #fff;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages>li {
+            padding: 0.5rem 1rem;
+        }
+
+        #messages>li:nth-child(odd) {
+            background: #efefef;
+        }
+        .btn {
+            font-size: 44px;
+            padding: 12px 16px;
+        }
+    </style>
+</head>
+
+<body>
+  
+    <button class="btn">下单</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var btn = document.querySelector('.btn');
+        btn.addEventListener('click', function(e) {
+            var socket = io('http://localhost:3000');
+
+            socket.on('result', (msg) => {
+                 console.log(JSON.parse(msg))
+                 socket.disconnect()
+            })
+            socket.on('fail', (err) => {
+                 console.log(JSON.parse(err))
+                 socket.disconnect()
+            })
+            const orderId = Math.floor((Math.random() * 1000000000000000));
+            socket.emit('orderId', JSON.stringify({orderId:orderId}))
+    })
+        
+    </script>
+</body>
+
+</html>
