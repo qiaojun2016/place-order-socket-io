@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>测试工具</title>
+    <script src="https://kit.fontawesome.com/c096e65843.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        .section-full {
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="section section-full is-flex is-flex-direction-column">
+        <div class="field has-addons has-addons-centered box">
+            <p class="control">
+                <a class="button is-small">
+                    <i class="fas fa-qrcode"></i>
+                </a>
+            </p>
+            <p class="control is-expanded ">
+                <input class="input is-small sn-input" type="text" name="sn-input" placeholder="设备Id">
+            </p>
+            <p class="control">
+                <a class="button is-small is-info search">
+                    查找
+                </a>
+            </p>
+        </div>
+        <div class="box">
+            <h6 class="title is-6">设备信息</h6>
+            <div class="columns">
+                <div class="column">
+                    <div class="is-flex is-justify-content-space-between">
+                        <span class="tag is-white">SN码</span>
+                        <span class="tag is-white sn-code">GUYHGFT</span>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="is-flex is-justify-content-space-between">
+                        <span class="tag is-white">设备名称</span>
+                        <span class="tag is-white type-name">BN858TY通用版本</span>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="is-flex is-justify-content-space-between">
+                        <span class="tag is-white">是否在线</span>
+                        <span class="tag is-success online">在线</span>
+                        <span class="tag is-danger offline">离线</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box is-flex-grow-1 is-flex  is-flex-direction-column">
+            <div class="is-flex is-align-items-center  is-justify-content-space-between">
+                <div class="control">
+                    <label class="radio mr-1">
+                        <input type="radio" checked name="no" value='2'>
+                        1号
+                    </label>
+                    <label class="radio mr-1">
+                        <input type="radio" name="no" value='3'>
+                        2号
+                    </label>
+                    <label class="radio mr-1">
+                        <input type="radio" name="no" value='4'>
+                        3号
+                    </label>
+                </div>
+
+                <div class="control">
+                    <button class="button is-primary is-small deliver">测试出货</button>
+                </div>
+            </div>
+            <textarea readonly class="textarea  is-small  is-flex-grow-1 is-primary mt-4 log"
+                placeholder="Primary textarea"></textarea>
+        </div>
+    </section>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var online$ = document.querySelector('.online')
+    var offline$ = document.querySelector('.offline')
+    var typeName$ = document.querySelector('.type-name')
+    var snCode$ = document.querySelector('.sn-code')
+    var deliver$ = document.querySelector('.deliver')
+    var textArea$ = document.querySelector('.log')
+    var search$ = document.querySelector('.search')
+    var snInput$ = document.querySelector('.sn-input')
+
+    search$.addEventListener('click', function () {
+        console.log(snInput$.value)
+        const sn = 'NEPRRN';
+        axios.get(`/device/${sn}`).then(function (response) {
+            const { online, sn, typeName } = response.data;
+            if (online) {
+                online$.classList.remove('is-hidden')
+                offline$.classList.add('is-hidden')
+            } else {
+                online$.classList.add('is-hidden')
+                offline$.classList.remove('is-hidden')
+            }
+            snCode$.textContent = sn
+            typeName$.textContent = typeName
+            console.log(response.data)
+        }).catch(function (error) {
+            console.log(error)
+        })
+    })
+
+
+    deliver$.addEventListener('click', () => {
+        var socket = io('http://192.168.5.73:3000');
+        var no = document.querySelector('input[name="no"]:checked').value;
+        no = new Number(no)
+        console.log(no)
+        socket.on('deliverResult', (msg) => {
+            console.log(JSON.parse(msg))
+            textArea$.value = textArea$.value + msg + "\n";
+            socket.disconnect()
+        })
+        socket.emit('deliver', JSON.stringify({ sn, no }))
+
+    })
+</script>
+
+</html>

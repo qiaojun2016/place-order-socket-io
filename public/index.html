@@ -2,9 +2,12 @@
 <html>
 
 <head>
-    <title>Socket.IO chat</title>
+    <title>Socket.IO</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
     <style>
-        body {
+        body,html {
+            height: 100%;
+            width: 100%;
             margin: 0;
             padding-bottom: 3rem;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -68,12 +71,26 @@
 <body>
   
     <button class="btn">下单</button>
+    <button id="deliver" class="btn">机器出货</button>
+    <section class="section is-flex is-flex-direction-column" style="height: 100%;">
+        <div class="box">
+            <h3>box1</h3>
+        </div>
+        <div class="box">
+            <h3>box1</h3>
+        </div>
+        <div class="box is-flex-grow-1">
+            <h3>box1</h3>
+        </div>
+    </section>
+
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var btn = document.querySelector('.btn');
+        var deliver = document.querySelector('#deliver')
         btn.addEventListener('click', function(e) {
             var socket = io('http://localhost:3000');
-
             socket.on('result', (msg) => {
                  console.log(JSON.parse(msg))
                  socket.disconnect()
@@ -84,6 +101,15 @@
             })
             const orderId = Math.floor((Math.random() * 1000000000000000));
             socket.emit('orderId', JSON.stringify({orderId:orderId}))
+    })
+
+    deliver.addEventListener('click', function () {
+        var socket = io('http://localhost:3000');
+        socket.on('deliverResult', (msg) => {
+                 console.log(JSON.parse(msg))
+                 socket.disconnect()
+        })
+        socket.emit('deliver', JSON.stringify({sn:'NEPRRN', no: 2}))
     })
         
     </script>
